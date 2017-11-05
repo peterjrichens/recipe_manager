@@ -4,8 +4,8 @@
 - Clone this repo
 - Install dependencies:
 ```
-$ cd recipe_manager
-$ pip install -r requirements.txt
+cd recipe_manager
+pip install -r requirements.txt
 ```
 - Add telegram token and db config in default.env
 - Load config:
