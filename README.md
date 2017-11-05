@@ -1,4 +1,4 @@
-## [WIP] Telegram bot recipe manger and culinary assistant
+## [WIP] Telegram bot recipe manager and culinary assistant
 
 ### Setup
 - Clone this repo
