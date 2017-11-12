@@ -88,7 +88,10 @@ class RecipeManager(object):
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
 
-    def lookupRecipe(self, search_term):
+    def lookupRecipe(self, search_term, exact_match=False):
+        if exact_match:
+            return self.session.query(Recipe.name,
+                                   Recipe.method).filter_by(name=search_term).first()
         return self.session.query(Recipe.name,
                                Recipe.method).filter(func.lower(Recipe.name).like('%%%s%%'
                                                                       %
