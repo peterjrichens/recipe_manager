@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 
 TOKEN = os.environ.get('TELEGRAM_TOKEN', None)
 
+SELECTED_CATEGORY, SELECTED_RECIPE, EXIT_BROWSE = range(3)
+
 # Define a few command handlers. These usually take the two arguments bot and
 # update. Error handlers also receive the raised TelegramError object in error.
 def start(bot, update):
