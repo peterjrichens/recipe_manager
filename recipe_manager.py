@@ -95,10 +95,12 @@ class RecipeManager(object):
                                                                       search_term)).all()
 
     def listRecipeCategories(self):
-        return self.session.query(Recipe.category).distinct().all()
+        return [i[0] for i in
+                self.session.query(Recipe.category).distinct().all()]
 
     def listRecipes(self, category):
-        return self.session.query(Recipe.name).filter_by(category=category).all()
+        return [i[0] for i in
+                self.session.query(Recipe.name).filter_by(category=category).all()]
 
     def newIngredient(self, recipe, amount, ingredient_name, notes=None):
         if not notes:
@@ -131,5 +133,7 @@ class RecipeManager(object):
 
 if __name__=='__main__':
     m = RecipeManager()
-    q = m.lookupRecipe('taro')
-    print type(q)
+    c = m.listRecipeCategories()
+    print c
+    r = m.listRecipes(c[-1])
+    print r
