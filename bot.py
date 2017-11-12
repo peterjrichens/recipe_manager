@@ -97,7 +97,7 @@ def main():
             EXIT_BROWSE: [MessageHandler(Filters.text, end_conversation)]
         },
 
-        fallbacks=[CommandHandler('cancel', cancel)]
+        fallbacks=[CommandHandler('cancel', end_conversation)]
     )
 
     dp.add_handler(browse_handler)
