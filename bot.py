@@ -19,17 +19,15 @@ SELECTED_CATEGORY, SELECTED_RECIPE, EXIT_BROWSE = range(3)
 # update. Error handlers also receive the raised TelegramError object in error.
 def start(bot, update):
     """Send a message when the command /start is issued."""
-    update.message.reply_text("""
-            Hi! Holly here, your friendly culinary assistant
-            type `/help` to see what I can do!
+    update.message.reply_text("""Hi! Holly here, your friendly culinary
+                              assistant\nsend /help to see what I can do!
                              """)
 
 
 def help(bot, update):
     """Send a message when the command /help is issued."""
-    update.message.reply_text("""
-      1. Search for anything and I'll show matching recipes
-      2. Type `/browse` to look through all my recipes
+    update.message.reply_text("""1. Search for anything and I'll show matching
+                              recipes\n2. Send /browse to look through all my recipes
                              """)
 
 def show_recipes(bot, update):
@@ -49,8 +47,8 @@ def list_categories(bot, update):
     reply_keyboard = [m.listRecipeCategories()]
     update.message.reply_text(
         'Which would you like to see?',
-        reply_markup=ReplyKeyboardMarkup(reply_keyboard,
-                                         one_time_keyboard=False))
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard,resize_keyboard=True,
+                                         one_time_keyboard=True))
     return SELECTED_CATEGORY
 
 def list_recipes(bot, update):
@@ -60,11 +58,12 @@ def list_recipes(bot, update):
     reply_keyboard = [m.listRecipes(category)]
     update.message.reply_text(
         'Here are the recipes have I under %s' % category,
-        reply_markup=ReplyKeyboardMarkup(reply_keyboard,
-                                         one_time_keyboard=False))
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard,resize_keyboard=True,
+                                         one_time_keyboard=True))
     return SELECTED_RECIPE
 
-def end_conversation():
+def end_conversation(bot, update):
+    logger.info("%s\n Ending the conversation.", update)
     return ConversationHandler.END
 
 def error(bot, update, error):
@@ -85,7 +84,6 @@ def main():
     dp.add_handler(CommandHandler("help", help))
 
     # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler(Filters.text, show_recipes))
 
     browse_handler = ConversationHandler(
         entry_points=[CommandHandler('browse', list_categories)],
@@ -103,6 +101,7 @@ def main():
 
     dp.add_handler(browse_handler)
 
+    dp.add_handler(MessageHandler(Filters.text, show_recipes))
     # log all errors
     dp.add_error_handler(error)
 
