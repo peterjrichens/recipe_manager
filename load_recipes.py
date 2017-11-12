@@ -6,7 +6,8 @@ recipes = pd.read_csv('recipes.csv')
 m = RecipeManager()
 for recipe in recipes.iterrows():
     recipe_name = recipe[1]['Dish']
-    r = m.addRecipe(recipe_name)
+    category = recipe[1]['Category']
+    r = m.addRecipe(recipe_name, category)
     method_text = recipe[1]['Method']
     r = m.modifyMethod(r, method_text)
     if type(recipe[1]['Requires']) == type('string'):

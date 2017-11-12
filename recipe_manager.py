@@ -39,6 +39,7 @@ class Recipe(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, unique=True)
+    category= Column(String)
     created = Column(DateTime)
     method = Column(String)
     notes = Column(String)
@@ -56,8 +57,9 @@ class Recipe(Base):
     #                          )
     ingredients = relationship("Ingredient", backref="recipe")
 
-    def __init__(self, name, created=datetime.now(), method=None, notes=None, source=None):
+    def __init__(self, name, category, created=datetime.now(), method=None, notes=None, source=None):
         self.name = name
+        self.category = category
         self.created = created
         self.method = method or ""
         self.notes = notes or ""
@@ -87,12 +89,16 @@ class RecipeManager(object):
         self.session = Session()
 
     def lookupRecipe(self, search_term):
-        q = self.session.query(Recipe.name,
+        return self.session.query(Recipe.name,
                                Recipe.method).filter(func.lower(Recipe.name).like('%%%s%%'
                                                                       %
                                                                       search_term)).all()
-        return q
 
+    def listRecipeCategories(self):
+        return self.session.query(Recipe.category).distinct().all()
+
+    def listRecipes(self, category):
+        return self.session.query(Recipe.name).filter_by(category=category).all()
 
     def newIngredient(self, recipe, amount, ingredient_name, notes=None):
         if not notes:
@@ -111,8 +117,8 @@ class RecipeManager(object):
         self.commit()
         return recipe
 
-    def addRecipe(self, name, method="", notes="", source=""):
-        recipe = Recipe(name, datetime.now(), method, notes, source)
+    def addRecipe(self, name, category, method="", notes="", source=""):
+        recipe = Recipe(name, category, datetime.now(), method, notes, source)
 
         self.session.add(recipe)
 

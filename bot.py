@@ -16,19 +16,20 @@ TOKEN = os.environ.get('TELEGRAM_TOKEN', None)
 # update. Error handlers also receive the raised TelegramError object in error.
 def start(bot, update):
     """Send a message when the command /start is issued."""
-    update.message.reply_text('Hi!')
+    update.message.reply_text("""
+            Hi! Holly here, your friendly culinary assistant
+            type `/help` to see what I can do!
+                             """)
 
 
 def help(bot, update):
     """Send a message when the command /help is issued."""
-    update.message.reply_text('Help!')
+    update.message.reply_text("""
+      1. Search for anything and I'll show matching recipes
+      2. Type `/browse` to look through all my recipes
+                             """)
 
-
-def echo(bot, update):
-    """Echo the user message."""
-    update.message.reply_text(update.message.text)
-
-def find_recipes(bot, update):
+def show_recipes(bot, update):
     "Return recipes matching message"
     m = RecipeManager()
     recipes = m.lookupRecipe(update.message.text.lower())
@@ -37,6 +38,31 @@ def find_recipes(bot, update):
     if len(recipes)==0:
         update.message.reply_text("Sorry, I don't know any recipes for %s" %
                                   update.message.text)
+    return EXIT_BROWSE
+
+def list_categories(bot, update):
+    "List recipe categories"
+    m = RecipeManager()
+    reply_keyboard = [m.listRecipeCategories()]
+    update.message.reply_text(
+        'Which would you like to see?',
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard,
+                                         one_time_keyboard=False))
+    return SELECTED_CATEGORY
+
+def list_recipes(bot, update):
+    "List recipes in category"
+    category = update.message.text
+    m = RecipeManager()
+    reply_keyboard = [m.listRecipes(category)]
+    update.message.reply_text(
+        'Here are the recipes have I under %s' % category,
+        reply_markup=ReplyKeyboardMarkup(reply_keyboard,
+                                         one_time_keyboard=False))
+    return SELECTED_RECIPE
+
+def end_conversation():
+    return ConversationHandler.END
 
 def error(bot, update, error):
     """Log Errors caused by Updates."""
@@ -56,7 +82,23 @@ def main():
     dp.add_handler(CommandHandler("help", help))
 
     # on noncommand i.e message - echo the message on Telegram
-    dp.add_handler(MessageHandler(Filters.text, find_recipes))
+    dp.add_handler(MessageHandler(Filters.text, show_recipes))
+
+    browse_handler = ConversationHandler(
+        entry_points=[CommandHandler('browse', list_categories)],
+
+        states={
+            SELECTED_CATEGORY: [MessageHandler(Filters.text, list_recipes)],
+
+            SELECTED_RECIPE: [MessageHandler(Filters.text, show_recipes)],
+
+            EXIT_BROWSE: [MessageHandler(Filters.text, end_conversation)]
+        },
+
+        fallbacks=[CommandHandler('cancel', cancel)]
+    )
+
+    dp.add_handler(browse_handler)
 
     # log all errors
     dp.add_error_handler(error)
